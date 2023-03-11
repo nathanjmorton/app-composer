@@ -26,65 +26,26 @@ Resources:
                 uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getItem.Arn}/invocations
               responses: {}
             put:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateItem.Arn}/invocations
               responses: {}
             delete:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${deleteItem.Arn}/invocations
               responses: {}
           /item:
             post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${addItem.Arn}/invocations
               responses: {}
       EndpointConfiguration: REGIONAL
       TracingEnabled: true
-  Function3:
-    Type: AWS::Serverless::Function
-    Properties:
-      Description: !Sub
-        - Stack ${AWS::StackName} Function ${ResourceName}
-        - ResourceName: Function3
-      CodeUri: src/Function3
-      Handler: index.handler
-      Runtime: nodejs18.x
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-  Function3LogGroup:
-    Type: AWS::Logs::LogGroup
-    DeletionPolicy: Retain
-    Properties:
-      LogGroupName: !Sub /aws/lambda/${Function3}
-  Function4:
-    Type: AWS::Serverless::Function
-    Properties:
-      Description: !Sub
-        - Stack ${AWS::StackName} Function ${ResourceName}
-        - ResourceName: Function4
-      CodeUri: src/Function4
-      Handler: index.handler
-      Runtime: nodejs18.x
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-  Function4LogGroup:
-    Type: AWS::Logs::LogGroup
-    DeletionPolicy: Retain
-    Properties:
-      LogGroupName: !Sub /aws/lambda/${Function4}
-  Function5:
-    Type: AWS::Serverless::Function
-    Properties:
-      Description: !Sub
-        - Stack ${AWS::StackName} Function ${ResourceName}
-        - ResourceName: Function5
-      CodeUri: src/Function5
-      Handler: index.handler
-      Runtime: nodejs18.x
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-  Function5LogGroup:
-    Type: AWS::Logs::LogGroup
-    DeletionPolicy: Retain
-    Properties:
-      LogGroupName: !Sub /aws/lambda/${Function5}
   getItems:
     Type: AWS::Serverless::Function
     Properties:
@@ -133,3 +94,75 @@ Resources:
     DeletionPolicy: Retain
     Properties:
       LogGroupName: !Sub /aws/lambda/${getItem}
+  updateItem:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: updateItem
+      CodeUri: src/updateItem
+      Handler: index.handler
+      Runtime: nodejs18.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Events:
+        ApiPUTitemsid:
+          Type: Api
+          Properties:
+            Path: /items/{id}
+            Method: PUT
+            RestApiId: !Ref Api
+  updateItemLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${updateItem}
+  deleteItem:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: deleteItem
+      CodeUri: src/deleteItem
+      Handler: index.handler
+      Runtime: nodejs18.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Events:
+        ApiDELETEitemsid:
+          Type: Api
+          Properties:
+            Path: /items/{id}
+            Method: DELETE
+            RestApiId: !Ref Api
+  deleteItemLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${deleteItem}
+  addItem:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: addItem
+      CodeUri: src/addItem
+      Handler: index.handler
+      Runtime: nodejs18.x
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Events:
+        ApiPOSTitem:
+          Type: Api
+          Properties:
+            Path: /item
+            Method: POST
+            RestApiId: !Ref Api
+  addItemLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${addItem}
