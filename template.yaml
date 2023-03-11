@@ -65,6 +65,13 @@ Resources:
             Path: /items
             Method: GET
             RestApiId: !Ref Api
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+          TABLE_ARN: !GetAtt Table.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
   getItemsLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Retain
@@ -89,6 +96,13 @@ Resources:
             Path: /items/{id}
             Method: GET
             RestApiId: !Ref Api
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+          TABLE_ARN: !GetAtt Table.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
   getItemLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Retain
@@ -113,6 +127,13 @@ Resources:
             Path: /items/{id}
             Method: PUT
             RestApiId: !Ref Api
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+          TABLE_ARN: !GetAtt Table.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
   updateItemLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Retain
@@ -137,6 +158,13 @@ Resources:
             Path: /items/{id}
             Method: DELETE
             RestApiId: !Ref Api
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+          TABLE_ARN: !GetAtt Table.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
   deleteItemLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Retain
@@ -161,8 +189,37 @@ Resources:
             Path: /item
             Method: POST
             RestApiId: !Ref Api
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+          TABLE_ARN: !GetAtt Table.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
   addItemLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Retain
     Properties:
       LogGroupName: !Sub /aws/lambda/${addItem}
+  Table:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+Metadata:
+  AWS::Composer::Groups:
+    Group:
+      Label: API
+      Members:
+        - getItems
+        - getItem
+        - updateItem
+        - deleteItem
+        - addItem
